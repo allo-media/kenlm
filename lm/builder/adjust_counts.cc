@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
+#include <ostream>
 
 namespace lm { namespace builder {
 
@@ -55,8 +56,10 @@ class StatCollector {
           // See equation (26) in Chen and Goodman.
           discounts_[i].amount[0] = 0.0;
           float y = static_cast<float>(s.n[1]) / static_cast<float>(s.n[1] + 2.0 * s.n[2]);
+          std::cerr << "for " << (i+1) << "-grams, Y = " << y << std::endl;
           for (unsigned j = 1; j < 4; ++j) {
             discounts_[i].amount[j] = static_cast<float>(j) - static_cast<float>(j + 1) * y * static_cast<float>(s.n[j+1]) / static_cast<float>(s.n[j]);
+            std::cerr << "for " << (i+1) << "-grams, n" << j << " = " << s.n[j] << "; n" << (j+1) << " = " << s.n[j+1] << std::endl;
             UTIL_THROW_IF(discounts_[i].amount[j] < 0.0 || discounts_[i].amount[j] > j, BadDiscountException, "ERROR: " << (i+1) << "-gram discount out of range for adjusted count " << j << ": " << discounts_[i].amount[j] << ".  This means modified Kneser-Ney smoothing thinks something is weird about your data.  To override this error for e.g. a class-based model, rerun with --discount_fallback\n");
           }
         } catch (const BadDiscountException &) {
